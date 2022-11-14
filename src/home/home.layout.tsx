@@ -3,6 +3,7 @@ import styles from "./index.module.css";
 import { useWater } from "./water.effect";
 import * as THREE from "three";
 import { Text, preloadFont } from "troika-three-text";
+import { GLTFLoader } from "./objects/gltf.loader";
 
 interface LinkItem {
   env: string;
@@ -19,7 +20,7 @@ interface CategoryItem {
 const List: CategoryItem[] = [
   {
     category: "设计云",
-    videoUrl: "/videobg.mp4",
+    videoUrl: "videobg.mp4",
     list: [
       {
         env: "dev",
@@ -91,7 +92,7 @@ const List: CategoryItem[] = [
   },
 ];
 
-function planeCurve(g: THREE.PlaneBufferGeometry, z: number) {
+function planeCurve(g: THREE.PlaneGeometry, z: number) {
   let p = g.parameters;
   let hw = p.width * 0.5;
 
@@ -124,36 +125,6 @@ function planeCurve(g: THREE.PlaneBufferGeometry, z: number) {
   pos.needsUpdate = true;
 }
 
-function getMesh() {
-  let x = 1;
-  let y = 1;
-  let width = 30;
-  let height = 10;
-  let radius = 5;
-
-  let shape = new THREE.Shape();
-  shape.moveTo(x, y + radius);
-  shape.lineTo(x, y + height - radius);
-  shape.quadraticCurveTo(x, y + height, x + radius, y + height);
-  shape.lineTo(x + width - radius, y + height);
-  shape.quadraticCurveTo(x + width, y + height, x + width, y + height - radius);
-  shape.lineTo(x + width, y + radius);
-  shape.quadraticCurveTo(x + width, y, x + width - radius, y);
-  shape.lineTo(x + radius, y);
-  shape.quadraticCurveTo(x, y, x, y + radius);
-
-  let geometry = new THREE.ShapeBufferGeometry(shape);
-
-  const mesh = new THREE.Line(
-    geometry,
-    new THREE.LineBasicMaterial({
-      opacity: 0.1,
-    })
-  );
-  // mesh.rotation.x = -Math.PI / 2;
-  return mesh;
-}
-
 export function HomeLayout(props: PropsWithChildren<{}>) {
   const waterContainerRef = useRef<HTMLDivElement>(null);
   const videoContainerRef = useRef<(HTMLVideoElement | null)[]>([]);
@@ -174,7 +145,7 @@ export function HomeLayout(props: PropsWithChildren<{}>) {
       waterContainerRef.current!,
       (scene, camera) => {
         raycaster.setFromCamera(pointer, camera);
-
+        console.log(camera.position, "camera");
         const intersects = raycaster.intersectObjects(scene.children, false);
 
         if (intersects.length > 0) {
@@ -234,7 +205,7 @@ export function HomeLayout(props: PropsWithChildren<{}>) {
       myText1.scale.x = -1;
       myText1.sync();
 
-      const geometry = new THREE.PlaneBufferGeometry(120, 80, 1, 1);
+      const geometry = new THREE.PlaneGeometry(120, 80, 1, 1);
       planeCurve(geometry, 4);
 
       if (List[i].imgUrl) {
@@ -291,6 +262,35 @@ export function HomeLayout(props: PropsWithChildren<{}>) {
       // mesh.position.y = 100;
       // scene.add(mesh);
     }
+
+    const loader = new GLTFLoader();
+    loader.load("/building_06/scene.gltf", (data: any) => {
+      console.log(data, "scene.gltf");
+      const globj = data.scene as THREE.Group;
+      globj.scale.set(40, 40, 40);
+      globj.position.x -= 50;
+      globj.position.z -= 50;
+      const light = new THREE.PointLight(0xffffff, 2, 1000);
+      light.position.copy(globj.position);
+      globj.position.x -= 100;
+      globj.position.z -= 100;
+      light.position.y = 300;
+      scene.add(light);
+      scene.add(globj);
+    });
+
+    const myText1 = new Text();
+    scene.add(myText1);
+    myText1.text = "小库工具站";
+    myText1.fontSize = 22;
+    myText1.font = "/MaShanZheng-Regular.ttf";
+    myText1.position.copy(new THREE.Vector3(-200, 150, -200));
+    myText1.color = 0xffffff;
+    myText1.anchorX = "center";
+    myText1.anchorY = "center";
+    myText1.rotation.y = Math.PI / 8;
+
+    myText1.sync();
 
     function onPointerMove(event: MouseEvent) {
       pointer.x = (event.clientX / window.innerWidth) * 2 - 1;

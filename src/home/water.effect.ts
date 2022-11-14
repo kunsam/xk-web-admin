@@ -14,7 +14,8 @@ export function useWater(
     1,
     20000
   );
-  camera.position.set(-50, 13, 214);
+
+  camera.position.set(-95, 13, 181);
 
   let renderer: THREE.WebGLRenderer;
   let controls, water: any, sun: any, mesh;
@@ -32,8 +33,8 @@ export function useWater(
 
     sun = new THREE.Vector3();
 
-    // Water
-    const waterGeometry = new THREE.PlaneBufferGeometry(10000, 10000);
+    // Water PlaneBufferGeometry
+    const waterGeometry = new THREE.PlaneGeometry(10000, 10000);
 
     water = new Water(waterGeometry, {
       textureWidth: 512,
@@ -92,16 +93,15 @@ export function useWater(
 
     updateSun();
 
-    const geometry = new THREE.BoxBufferGeometry(30, 30, 30);
+    const geometry = new THREE.BoxGeometry(30, 30, 30);
     const material = new THREE.MeshStandardMaterial({ roughness: 0 });
     mesh = new THREE.Mesh(geometry, material);
 
-    controls = new OrbitControls(camera, renderer.domElement, 0.8);
+    controls = new OrbitControls(camera, renderer.domElement, 1.2);
     controls.maxPolarAngle = Math.PI * 0.495;
     controls.target.set(0, 10, 0);
     // controls.minDistance = 10.0;
     controls.maxDistance = 500.0;
-    console.log(controls, "controls");
 
     controls.update();
 
