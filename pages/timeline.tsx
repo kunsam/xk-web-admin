@@ -14,7 +14,7 @@ interface AuthorTasks {
   tasks: Timeline.Task[];
 }
 
-export default function Timeline() {
+export default function TimelinePage() {
   const [preCommitData, setpreCommitData] = useState<
     Timeline.AuthorTaskOrigin | undefined
   >();

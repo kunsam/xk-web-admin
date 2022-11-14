@@ -1,4 +1,4 @@
-import { Button, Select, TreeSelect } from "antd";
+import { TreeSelect } from "antd";
 import Image from "next/image";
 import { CSSProperties, useCallback, useState } from "react";
 import {
@@ -78,7 +78,7 @@ export function TimeSortableComponent({
 
       onChange(changedTasks);
     },
-    [tasks]
+    [tasks, onChange]
   );
 
   const treeData: TreeData[] = otherAuthorTasks.map((data) => ({
