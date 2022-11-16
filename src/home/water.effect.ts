@@ -34,7 +34,7 @@ export function useWater(
     sun = new THREE.Vector3();
 
     // Water PlaneBufferGeometry
-    const waterGeometry = new THREE.PlaneGeometry(10000, 10000);
+    const waterGeometry = new THREE.PlaneGeometry(20000, 20000);
 
     water = new Water(waterGeometry, {
       textureWidth: 512,
@@ -101,7 +101,7 @@ export function useWater(
     controls.maxPolarAngle = Math.PI * 0.495;
     controls.target.set(0, 10, 0);
     // controls.minDistance = 10.0;
-    controls.maxDistance = 500.0;
+    controls.maxDistance = 2500.0;
 
     controls.update();
 

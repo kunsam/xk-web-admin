@@ -4,6 +4,8 @@ import { useWater } from "./water.effect";
 import * as THREE from "three";
 import { Text, preloadFont } from "troika-three-text";
 import { GLTFLoader } from "./objects/gltf.loader";
+import Router from "next/router";
+import { drawCadViewFlow } from "./drawCad";
 
 interface LinkItem {
   env: string;
@@ -15,6 +17,7 @@ interface CategoryItem {
   list: LinkItem[];
   videoUrl?: string;
   imgUrl?: string;
+  link?: string;
 }
 
 const List: CategoryItem[] = [
@@ -90,6 +93,12 @@ const List: CategoryItem[] = [
       },
     ],
   },
+  {
+    category: "时间管理",
+    imgUrl: "/timeline-cover.png",
+    link: "/timeline",
+    list: [],
+  },
 ];
 
 function planeCurve(g: THREE.PlaneGeometry, z: number) {
@@ -145,7 +154,6 @@ export function HomeLayout(props: PropsWithChildren<{}>) {
       waterContainerRef.current!,
       (scene, camera) => {
         raycaster.setFromCamera(pointer, camera);
-        console.log(camera.position, "camera");
         const intersects = raycaster.intersectObjects(scene.children, false);
 
         if (intersects.length > 0) {
@@ -203,6 +211,7 @@ export function HomeLayout(props: PropsWithChildren<{}>) {
       myText1.anchorY = "center";
       myText1.rotation.y = Math.PI / 2 - angle;
       myText1.scale.x = -1;
+      myText1.userData.selfLink = List[i].link;
       myText1.sync();
 
       const geometry = new THREE.PlaneGeometry(120, 80, 1, 1);
@@ -289,8 +298,29 @@ export function HomeLayout(props: PropsWithChildren<{}>) {
     myText1.anchorX = "center";
     myText1.anchorY = "center";
     myText1.rotation.y = Math.PI / 8;
-
     myText1.sync();
+
+    drawCadViewFlow().then((meshes) => {
+      const plane = new THREE.Object3D();
+      const geometry = new THREE.PlaneGeometry(1000, 1000, 1, 1);
+      // const plane = new THREE.Mesh(
+      //   geometry,
+      //   new THREE.MeshBasicMaterial({
+      //     side: THREE.DoubleSide,
+      //     color: 0x000000,
+      //     opacity: 0.1,
+      //   })
+      // );
+      if (meshes.length > 0) {
+        plane.add(...meshes);
+      }
+
+      plane.position.copy(new THREE.Vector3(-400, 50, -200));
+      scene.add(plane);
+      plane.rotation.y = Math.PI / 4;
+      plane.scale.copy(new THREE.Vector3(0.05, 0.05, 0.05));
+      plane.position.y = 1000;
+    });
 
     function onPointerMove(event: MouseEvent) {
       pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -308,7 +338,11 @@ export function HomeLayout(props: PropsWithChildren<{}>) {
 
         if (iobject && iobject instanceof Text) {
           const mesh = iobject as THREE.Mesh;
-          window.open(mesh.userData.text);
+          if (mesh.userData.selfLink) {
+            Router.push(mesh.userData.selfLink);
+          } else if (mesh.userData.text) {
+            window.open(mesh.userData.text);
+          }
         }
       }
     }
